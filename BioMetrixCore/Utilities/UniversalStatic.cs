@@ -1,4 +1,4 @@
-﻿///
+///
 ///    Experimented By : Ozesh Thapa
 ///    Email: dablackscarlet@gmail.com
 ///
@@ -53,7 +53,9 @@ namespace BioMetrixCore
                 // Create a buffer of 32 bytes of data to be transmitted. 
                 string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
                 byte[] buffer = Encoding.ASCII.GetBytes(data);
-                int timeout = 120;
+                
+                // Increase timeout from 120ms to 3000ms (3 seconds) for more reliable device response
+                int timeout = 3000;
                 PingReply reply = pingSender.Send(ipAddress, timeout, buffer, options);
 
                 if (reply.Status == IPStatus.Success)

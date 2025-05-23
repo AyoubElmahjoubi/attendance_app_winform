@@ -1,4 +1,4 @@
-﻿///
+///
 ///    Experimented By : Ozesh Thapa
 ///    Email: dablackscarlet@gmail.com
 ///
@@ -47,24 +47,72 @@ namespace BioMetrixCore
         }
 
 
+        public bool ClearSLog(int dwMachineNumber)
+        {
+            return objCZKEM.ClearSLog(dwMachineNumber);
+        }
+
+
         public bool Connect_Net(string IPAdd, int Port)
         {
-            if (objCZKEM.Connect_Net(IPAdd, Port))
+            return Connect_Net(IPAdd, Port, 0);
+        }
+
+        public bool Connect_Net(string IPAdd, int Port, int CommPassword = 0)
+        {
+            try
             {
-                //65535, 32767
-                if (objCZKEM.RegEvent(1, 32767))
+                // Clear any previous connection
+                objCZKEM.Disconnect();
+                
+                // Set communication password if provided
+                if (CommPassword > 0)
                 {
-                    // [ Register your events here ]
-                    // [ Go through the _IZKEMEvents_Event class for a complete list of events
-                    objCZKEM.OnConnected += ObjCZKEM_OnConnected;
-                    objCZKEM.OnDisConnected += objCZKEM_OnDisConnected;
-                    objCZKEM.OnEnrollFinger += ObjCZKEM_OnEnrollFinger;
-                    objCZKEM.OnFinger += ObjCZKEM_OnFinger;
-                    objCZKEM.OnAttTransactionEx += new _IZKEMEvents_OnAttTransactionExEventHandler(zkemClient_OnAttTransactionEx);
+                    if (!objCZKEM.SetCommPassword(CommPassword))
+                    {
+                        int errorCode = 0;
+                        objCZKEM.GetLastError(ref errorCode);
+                        System.Windows.Forms.MessageBox.Show($"Failed to set communication password. Error code: {errorCode}");
+                        return false;
+                    }
                 }
-                return true;
+                
+                if (objCZKEM.Connect_Net(IPAdd, Port))
+                {
+                    //65535, 32767
+                    if (objCZKEM.RegEvent(1, 32767))
+                    {
+                        // [ Register your events here ]
+                        // [ Go through the _IZKEMEvents_Event class for a complete list of events
+                        objCZKEM.OnConnected += ObjCZKEM_OnConnected;
+                        objCZKEM.OnDisConnected += objCZKEM_OnDisConnected;
+                        objCZKEM.OnEnrollFinger += ObjCZKEM_OnEnrollFinger;
+                        objCZKEM.OnFinger += ObjCZKEM_OnFinger;
+                        objCZKEM.OnAttTransactionEx += new _IZKEMEvents_OnAttTransactionExEventHandler(zkemClient_OnAttTransactionEx);
+                        return true;
+                    }
+                    else
+                    {
+                        int errorCode = 0;
+                        objCZKEM.GetLastError(ref errorCode);
+                        System.Windows.Forms.MessageBox.Show($"RegEvent failed. Error code: {errorCode}");
+                        objCZKEM.Disconnect();
+                        return false;
+                    }
+                }
+                else
+                {
+                    int errorCode = 0;
+                    objCZKEM.GetLastError(ref errorCode);
+                    System.Windows.Forms.MessageBox.Show($"Connection failed. IP: {IPAdd}, Port: {Port}, Error code: {errorCode}");
+                    return false;
+                }
             }
-            return false;
+            catch (Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show($"Exception during connection: {ex.Message}");
+                return false;
+            }
         }
 
         private void ObjCZKEM_OnFinger()
@@ -90,7 +138,7 @@ namespace BioMetrixCore
 
         public bool DelUserTmp(int dwMachineNumber, int dwEnrollNumber, int dwFingerIndex)
         {
-            return DelUserTmp(dwMachineNumber, dwEnrollNumber, dwFingerIndex);
+            return objCZKEM.DelUserTmp(dwMachineNumber, dwEnrollNumber, dwFingerIndex);
         }
 
         public bool DisableDeviceWithTimeOut(int dwMachineNumber, int TimeOutSec)
@@ -113,7 +161,7 @@ namespace BioMetrixCore
 
         public bool GetUserInfo(int dwMachineNumber, int dwEnrollNumber, ref string Name, ref string Password, ref int Privilege, ref bool Enabled)
         {
-            return GetUserInfo(dwMachineNumber, dwEnrollNumber, ref Name, ref Password, ref Privilege, ref Enabled);
+            return objCZKEM.GetUserInfo(dwMachineNumber, dwEnrollNumber, ref Name, ref Password, ref Privilege, ref Enabled);
         }
 
 
@@ -340,11 +388,6 @@ namespace BioMetrixCore
         }
 
         public bool ClearPhotoByTime(int dwMachineNumber, int iFlag, string sTime, string eTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool ClearSLog(int dwMachineNumber)
         {
             throw new NotImplementedException();
         }
@@ -979,7 +1022,7 @@ namespace BioMetrixCore
 
         public bool SetCommPassword(int CommKey)
         {
-            throw new NotImplementedException();
+            return objCZKEM.SetCommPassword(CommKey);
         }
 
         public bool SetCustomizeAttState(int dwMachineNumber, int StateID, int NewState)

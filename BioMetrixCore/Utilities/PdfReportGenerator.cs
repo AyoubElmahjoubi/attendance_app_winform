@@ -15,6 +15,21 @@ namespace BioMetrixCore
         {
             try
             {
+                // Validate inputs
+                if (attendanceRecords == null || attendanceRecords.Count == 0)
+                {
+                    MessageBox.Show("No attendance records to generate report from.", "Warning", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    MessageBox.Show("Invalid file path for report.", "Error", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 // Create a new Document
                 using (Document document = new Document(PageSize.A4, 50, 50, 50, 50))
                 {

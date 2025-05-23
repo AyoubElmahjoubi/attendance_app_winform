@@ -1,4 +1,4 @@
-﻿///
+///
 ///    Experimented By : Ozesh Thapa
 ///    Email: dablackscarlet@gmail.com
 ///
@@ -10,6 +10,16 @@ namespace BioMetrixCore
 {
     internal class DeviceManipulator
     {
+
+        /// <summary>
+        /// Pings the device at the specified IP address to check if it's reachable
+        /// </summary>
+        /// <param name="ipAddress">IP address of the device</param>
+        /// <returns>True if the device responds to ping, otherwise false</returns>
+        public bool PingDevice(string ipAddress)
+        {
+            return UniversalStatic.PingTheDevice(ipAddress);
+        }
 
         public ICollection<UserInfo> GetAllUserInfo(ZkemClient objZkeeper, int machineNumber)
         {

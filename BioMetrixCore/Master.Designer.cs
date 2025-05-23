@@ -43,6 +43,8 @@ namespace BioMetrixCore
             this.btnPullData = new System.Windows.Forms.Button();
             this.btnClassifyAttendance = new System.Windows.Forms.Button();
             this.pnlHeader = new System.Windows.Forms.Panel();
+            this.label4 = new System.Windows.Forms.Label();
+            this.tbxPassword = new System.Windows.Forms.TextBox();
             this.lblHeader = new System.Windows.Forms.Label();
             this.dgvRecords = new System.Windows.Forms.DataGridView();
             this.btnPowerOff = new System.Windows.Forms.Button();
@@ -64,7 +66,7 @@ namespace BioMetrixCore
             // tbxDeviceIP
             // 
             this.tbxDeviceIP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxDeviceIP.Location = new System.Drawing.Point(296, 9);
+            this.tbxDeviceIP.Location = new System.Drawing.Point(173, 9);
             this.tbxDeviceIP.Name = "tbxDeviceIP";
             this.tbxDeviceIP.Size = new System.Drawing.Size(99, 22);
             this.tbxDeviceIP.TabIndex = 0;
@@ -74,7 +76,7 @@ namespace BioMetrixCore
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(238, 12);
+            this.label1.Location = new System.Drawing.Point(115, 14);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(52, 13);
             this.label1.TabIndex = 1;
@@ -84,7 +86,7 @@ namespace BioMetrixCore
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(401, 14);
+            this.label2.Location = new System.Drawing.Point(439, 14);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(28, 13);
             this.label2.TabIndex = 3;
@@ -93,10 +95,10 @@ namespace BioMetrixCore
             // tbxPort
             // 
             this.tbxPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxPort.Location = new System.Drawing.Point(433, 9);
+            this.tbxPort.Location = new System.Drawing.Point(473, 9);
             this.tbxPort.MaxLength = 6;
             this.tbxPort.Name = "tbxPort";
-            this.tbxPort.Size = new System.Drawing.Size(56, 22);
+            this.tbxPort.Size = new System.Drawing.Size(50, 22);
             this.tbxPort.TabIndex = 2;
             this.tbxPort.Text = "4370";
             this.tbxPort.TextChanged += new System.EventHandler(this.tbxPort_TextChanged);
@@ -139,7 +141,7 @@ namespace BioMetrixCore
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(495, 14);
+            this.label3.Location = new System.Drawing.Point(529, 14);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(95, 13);
             this.label3.TabIndex = 7;
@@ -148,10 +150,10 @@ namespace BioMetrixCore
             // tbxMachineNumber
             // 
             this.tbxMachineNumber.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbxMachineNumber.Location = new System.Drawing.Point(596, 9);
+            this.tbxMachineNumber.Location = new System.Drawing.Point(630, 9);
             this.tbxMachineNumber.MaxLength = 3;
             this.tbxMachineNumber.Name = "tbxMachineNumber";
-            this.tbxMachineNumber.Size = new System.Drawing.Size(37, 22);
+            this.tbxMachineNumber.Size = new System.Drawing.Size(38, 22);
             this.tbxMachineNumber.TabIndex = 8;
             this.tbxMachineNumber.Text = "1";
             this.tbxMachineNumber.TextChanged += new System.EventHandler(this.tbxMachineNumber_TextChanged);
@@ -199,6 +201,8 @@ namespace BioMetrixCore
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(236)))), ((int)(((byte)(236)))));
+            this.pnlHeader.Controls.Add(this.label4);
+            this.pnlHeader.Controls.Add(this.tbxPassword);
             this.pnlHeader.Controls.Add(this.lblHeader);
             this.pnlHeader.Controls.Add(this.label1);
             this.pnlHeader.Controls.Add(this.tbxDeviceIP);
@@ -352,6 +356,27 @@ namespace BioMetrixCore
             this.lblDeviceInfo.TabIndex = 892;
             this.lblDeviceInfo.Text = "Device Info : --";
             // 
+            // label4
+            // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(282, 14);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(71, 13);
+            this.label4.TabIndex = 19;
+            this.label4.Text = "Mot de Passe";
+            // 
+            // tbxPassword
+            // 
+            this.tbxPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbxPassword.Location = new System.Drawing.Point(359, 9);
+            this.tbxPassword.MaxLength = 8;
+            this.tbxPassword.Name = "tbxPassword";
+            this.tbxPassword.PasswordChar = '*';
+            this.tbxPassword.Size = new System.Drawing.Size(70, 22);
+            this.tbxPassword.TabIndex = 3;
+            this.tbxPassword.Text = "764266";
+            // 
             // Master
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -402,8 +427,10 @@ namespace BioMetrixCore
         private System.Windows.Forms.Button btnDisableDevice;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.Label lblDeviceInfo;
         private System.Windows.Forms.Button btnGetAllUserID;
         private System.Windows.Forms.Button btnUploadUserInfo;
+        private System.Windows.Forms.Label lblDeviceInfo;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox tbxPassword;
     }
 }

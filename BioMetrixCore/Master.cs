@@ -53,6 +53,7 @@ namespace BioMetrixCore
             tbxMachineNumber.Enabled = !value;
             tbxPort.Enabled = !value;
             tbxDeviceIP.Enabled = !value;
+            tbxPassword.Enabled = !value;
 
         }
 
@@ -94,50 +95,88 @@ namespace BioMetrixCore
         {
             try
             {
-                this.Cursor = Cursors.WaitCursor;
-                ShowStatusBar(string.Empty, true);
+                string ipAddress = tbxDeviceIP.Text.Trim();
+                string port = tbxPort.Text.Trim();
+                string password = tbxPassword.Text.Trim();
+                int portNumber = 4370;
+                int commPassword = 0;
 
-                if (IsDeviceConnected)
+                if (ipAddress == string.Empty || port == string.Empty)
                 {
-                    IsDeviceConnected = false;
-                    this.Cursor = Cursors.Default;
-
+                    ShowStatusBar("IP Address and Port is mandatory !!", false);
                     return;
                 }
 
-                string ipAddress = tbxDeviceIP.Text.Trim();
-                string port = tbxPort.Text.Trim();
-                if (ipAddress == string.Empty || port == string.Empty)
-                    throw new Exception("The Device IP Address and Port is mandotory !!");
+                // Convert the string port to integer
+                try
+                {
+                    portNumber = Convert.ToInt32(port);
+                }
+                catch (Exception)
+                {
+                    ShowStatusBar("Port Number seems to be wrong format !!", false);
+                    return;
+                }
 
-                int portNumber = 4370;
-                if (!int.TryParse(port, out portNumber))
-                    throw new Exception("Not a valid port number");
+                // Convert the password to integer if it's not empty
+                if (!string.IsNullOrEmpty(password))
+                {
+                    // First, trim any whitespace that might cause parsing issues
+                    password = password.Trim();
+                    
+                    // Try direct parsing first
+                    if (int.TryParse(password, out commPassword))
+                    {
+                        // Successfully parsed
+                    }
+                    else
+                    {
+                        ShowStatusBar("Password must be a valid number.", false);
+                        this.Cursor = Cursors.Default;
+                        return;
+                    }
+                }
+                
+                this.Cursor = Cursors.WaitCursor;
+                ShowStatusBar(string.Empty, true);
 
-                bool isValidIpA = UniversalStatic.ValidateIP(ipAddress);
-                if (!isValidIpA)
-                    throw new Exception("The Device IP is invalid !!");
+                // Ping the device first
+                bool isDeviceConnected = manipulator.PingDevice(ipAddress);
+                if (!isDeviceConnected)
+                {
+                    ShowStatusBar("The device at " + ipAddress + ":" + port + " did not respond!! Check if the device is powered on and connected to the network.", false);
+                    this.Cursor = Cursors.Default;
+                    return;
+                }
 
-                isValidIpA = UniversalStatic.PingTheDevice(ipAddress);
-                if (!isValidIpA)
-                    throw new Exception("The device at " + ipAddress + ":" + port + " did not respond!!");
-
+                ShowStatusBar("Device responded to ping. Attempting to connect...", true);
                 objZkeeper = new ZkemClient(RaiseDeviceEvent);   
-                IsDeviceConnected = objZkeeper.Connect_Net(ipAddress, portNumber);
+                
+                // Use the password if provided
+                if (commPassword > 0)
+                {
+                    IsDeviceConnected = objZkeeper.Connect_Net(ipAddress, portNumber, commPassword);
+                }
+                else
+                {
+                    IsDeviceConnected = objZkeeper.Connect_Net(ipAddress, portNumber);
+                }
 
                 if (IsDeviceConnected)
                 {
                     string deviceInfo = manipulator.FetchDeviceInfo(objZkeeper, int.Parse(tbxMachineNumber.Text.Trim()));
                     lblDeviceInfo.Text = deviceInfo;
                 }
-
+                else
+                {
+                    ShowStatusBar("Failed to connect to the device. Please check device settings and try again.", false);
+                }
             }
             catch (Exception ex)
             {
                 ShowStatusBar(ex.Message, false);
             }
             this.Cursor = Cursors.Default;
-
         }
 
 
@@ -162,19 +201,29 @@ namespace BioMetrixCore
 
         private void btnPingDevice_Click(object sender, EventArgs e)
         {
-            ShowStatusBar(string.Empty, true);
+            try
+            {
+                ShowStatusBar(string.Empty, true);
 
-            string ipAddress = tbxDeviceIP.Text.Trim();
+                string ipAddress = tbxDeviceIP.Text.Trim();
 
-            bool isValidIpA = UniversalStatic.ValidateIP(ipAddress);
-            if (!isValidIpA)
-                throw new Exception("The Device IP is invalid !!");
+                bool isValidIpA = UniversalStatic.ValidateIP(ipAddress);
+                if (!isValidIpA)
+                {
+                    ShowStatusBar("The Device IP is invalid !!", false);
+                    return;
+                }
 
-            isValidIpA = UniversalStatic.PingTheDevice(ipAddress);
-            if (isValidIpA)
-                ShowStatusBar("The device is active", true);
-            else
-                ShowStatusBar("Could not read any response", false);
+                isValidIpA = UniversalStatic.PingTheDevice(ipAddress);
+                if (isValidIpA)
+                    ShowStatusBar("The device is active", true);
+                else
+                    ShowStatusBar("Could not read any response", false);
+            }
+            catch (Exception ex)
+            {
+                ShowStatusBar("Error pinging device: " + ex.Message, false);
+            }
         }
 
         private void btnGetAllUserID_Click(object sender, EventArgs e)

@@ -62,6 +62,12 @@
     <Compile Include="Controls\DataEmpty.Designer.cs">
       <DependentUpon>DataEmpty.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\AttendanceClassifierForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AttendanceClassifierForm.Designer.cs">
+      <DependentUpon>AttendanceClassifierForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Info\ClassifiedAttendance.cs" />
     <Compile Include="Info\UserIDInfo.cs" />
     <Compile Include="Utilities\AttendanceClassifier.cs" />
@@ -83,6 +89,9 @@
     <Compile Include="Utilities\ZkemClient.cs" />
     <EmbeddedResource Include="Controls\DataEmpty.resx">
       <DependentUpon>DataEmpty.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\AttendanceClassifierForm.resx">
+      <DependentUpon>AttendanceClassifierForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Master.resx">
       <DependentUpon>Master.cs</DependentUpon>

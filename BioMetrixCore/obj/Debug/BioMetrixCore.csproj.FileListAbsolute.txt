@@ -46,3 +46,4 @@ C:\Users\schwe\RiderProjects\attendance_app_winform\BioMetrixCore\bin\Debug\itex
 C:\Users\schwe\RiderProjects\attendance_app_winform\BioMetrixCore\bin\Debug\itextsharp.xml
 C:\Users\schwe\RiderProjects\attendance_app_winform\BioMetrixCore\obj\Debug\Interop.zkemkeeper.dll
 C:\Users\schwe\RiderProjects\attendance_app_winform\BioMetrixCore\obj\Debug\BioMetri.85DC5369.Up2Date
+C:\Users\schwe\RiderProjects\attendance_app_winform\BioMetrixCore\obj\Debug\BioMetrixCore.AttendanceClassifierForm.resources

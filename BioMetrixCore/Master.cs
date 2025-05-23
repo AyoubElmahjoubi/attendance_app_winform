@@ -308,32 +308,22 @@ namespace BioMetrixCore
             {
                 ShowStatusBar(string.Empty, true);
 
-                ICollection<MachineInfo> lstMachineInfo = manipulator.GetLogData(objZkeeper, int.Parse(tbxMachineNumber.Text.Trim()));
+                // Check if device is connected
+                if (!IsDeviceConnected)
+                {
+                    ShowStatusBar("Please connect to the device first!", false);
+                    return;
+                }
 
-                if (lstMachineInfo != null && lstMachineInfo.Count > 0)
-                {
-                    // Classify the attendance records
-                    var classifiedRecords = AttendanceClassifier.ClassifyAttendance(lstMachineInfo);
-                    var flattenedRecords = AttendanceClassifier.FlattenClassifiedRecords(classifiedRecords);
-                    
-                    // Clear the current grid view
-                    ClearGrid();
-                    
-                    // Add the attendance detail view
-                    AttendanceDetailView detailView = new AttendanceDetailView(flattenedRecords);
-                    detailView.Dock = DockStyle.Fill;
-                    dgvRecords.Controls.Add(detailView);
-                    
-                    ShowStatusBar($"Classified {flattenedRecords.Count} attendance records", true);
-                }
-                else
-                {
-                    DisplayListOutput("No records found to classify");
-                }
+                // Open the AttendanceClassifierForm
+                AttendanceClassifierForm classifierForm = new AttendanceClassifierForm();
+                classifierForm.Show();
+                
+                ShowStatusBar("Attendance classifier opened successfully", true);
             }
             catch (Exception ex)
             {
-                DisplayListOutput($"Error classifying attendance: {ex.Message}");
+                ShowStatusBar($"Error opening attendance classifier: {ex.Message}", false);
             }
         }
 

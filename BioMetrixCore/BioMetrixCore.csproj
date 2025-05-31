@@ -71,6 +71,13 @@
     <Compile Include="Info\ClassifiedAttendance.cs" />
     <Compile Include="Info\UserIDInfo.cs" />
     <Compile Include="Utilities\AttendanceClassifier.cs" />
+    <Compile Include="Utilities\AttendanceSettings.cs" />
+    <Compile Include="Forms\AttendanceSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AttendanceSettingsForm.Designer.cs">
+      <DependentUpon>AttendanceSettingsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utilities\DeviceManipulator.cs" />
     <Compile Include="Utilities\PdfReportGenerator.cs" />
     <Compile Include="Enums\ClearFlag.cs" />
@@ -92,6 +99,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\AttendanceClassifierForm.resx">
       <DependentUpon>AttendanceClassifierForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\AttendanceSettingsForm.resx">
+      <DependentUpon>AttendanceSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Master.resx">
       <DependentUpon>Master.cs</DependentUpon>

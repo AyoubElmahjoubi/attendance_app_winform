@@ -56,6 +56,7 @@ namespace BioMetrixCore
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnGetAllUserID = new System.Windows.Forms.Button();
             this.btnUploadUserInfo = new System.Windows.Forms.Button();
+            this.btnAttendanceSettings = new System.Windows.Forms.Button();
             this.lblDeviceInfo = new System.Windows.Forms.Label();
             this.pnlHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvRecords)).BeginInit();
@@ -320,6 +321,7 @@ namespace BioMetrixCore
             this.flowLayoutPanel1.Controls.Add(this.btnRestartDevice);
             this.flowLayoutPanel1.Controls.Add(this.btnPowerOff);
             this.flowLayoutPanel1.Controls.Add(this.btnUploadUserInfo);
+            this.flowLayoutPanel1.Controls.Add(this.btnAttendanceSettings);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
@@ -338,23 +340,33 @@ namespace BioMetrixCore
             // 
             // btnUploadUserInfo
             // 
-            this.btnUploadUserInfo.Location = new System.Drawing.Point(718, 3);
+            this.btnUploadUserInfo.Location = new System.Drawing.Point(599, 3);
             this.btnUploadUserInfo.Name = "btnUploadUserInfo";
-            this.btnUploadUserInfo.Size = new System.Drawing.Size(65, 48);
+            this.btnUploadUserInfo.Size = new System.Drawing.Size(112, 48);
             this.btnUploadUserInfo.TabIndex = 893;
             this.btnUploadUserInfo.Text = "Upload User Info";
             this.btnUploadUserInfo.UseVisualStyleBackColor = true;
             this.btnUploadUserInfo.Click += new System.EventHandler(this.btnUploadUserInfo_Click);
             // 
+            // btnAttendanceSettings
+            // 
+            this.btnAttendanceSettings.Location = new System.Drawing.Point(717, 3);
+            this.btnAttendanceSettings.Name = "btnAttendanceSettings";
+            this.btnAttendanceSettings.Size = new System.Drawing.Size(80, 48);
+            this.btnAttendanceSettings.TabIndex = 894;
+            this.btnAttendanceSettings.Text = "Attendance Settings";
+            this.btnAttendanceSettings.UseVisualStyleBackColor = true;
+            this.btnAttendanceSettings.Click += new System.EventHandler(this.btnAttendanceSettings_Click);
+            // 
             // lblDeviceInfo
             // 
-            this.lblDeviceInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblDeviceInfo.Location = new System.Drawing.Point(11, 45);
+            this.lblDeviceInfo.AutoSize = true;
+            this.lblDeviceInfo.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.lblDeviceInfo.Location = new System.Drawing.Point(0, 461);
             this.lblDeviceInfo.Name = "lblDeviceInfo";
-            this.lblDeviceInfo.Size = new System.Drawing.Size(792, 19);
+            this.lblDeviceInfo.Size = new System.Drawing.Size(103, 13);
             this.lblDeviceInfo.TabIndex = 892;
-            this.lblDeviceInfo.Text = "Device Info : --";
+            this.lblDeviceInfo.Text = "Connection Status:";
             // 
             // label4
             // 
@@ -429,6 +441,7 @@ namespace BioMetrixCore
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Button btnGetAllUserID;
         private System.Windows.Forms.Button btnUploadUserInfo;
+        private System.Windows.Forms.Button btnAttendanceSettings;
         private System.Windows.Forms.Label lblDeviceInfo;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox tbxPassword;

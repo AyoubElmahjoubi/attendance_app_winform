@@ -6,15 +6,8 @@ namespace BioMetrixCore
 {
     public class AttendanceClassifier
     {
-        // Time ranges for classification
-        private static readonly TimeSpan CheckInStartTime = new TimeSpan(8, 30, 0);
-        private static readonly TimeSpan CheckInEndTime = new TimeSpan(10, 30, 0);
-        
-        private static readonly TimeSpan PauseStartTime = new TimeSpan(13, 0, 0);
-        private static readonly TimeSpan PauseEndTime = new TimeSpan(14, 30, 0);
-        
-        private static readonly TimeSpan CheckOutStartTime = new TimeSpan(17, 0, 0);
-        private static readonly TimeSpan CheckOutEndTime = new TimeSpan(20, 0, 0);
+        // Get time ranges from settings
+        private static AttendanceSettings Settings => AttendanceSettings.Instance;
 
         /// <summary>
         /// Classifies attendance records into check-in, pause, and check-out categories
@@ -49,12 +42,12 @@ namespace BioMetrixCore
                 }
 
                 // Classify based on time
-                if (CheckInStartTime <= recordTime && recordTime <= CheckInEndTime)
+                if (Settings.CheckInStartTime <= recordTime && recordTime <= Settings.CheckInEndTime)
                 {
                     // Check In
                     classifiedRecords[recordDate][userId].CheckInTimes.Add(recordDateTime);
                 }
-                else if (PauseStartTime <= recordTime && recordTime <= PauseEndTime)
+                else if (Settings.PauseStartTime <= recordTime && recordTime <= Settings.PauseEndTime)
                 {
                     // For pause, we need to determine if it's start or end of pause
                     // If the first pause record of the day, consider it as start
@@ -73,10 +66,51 @@ namespace BioMetrixCore
                         classifiedRecords[recordDate][userId].PauseEndTimes.Add(recordDateTime);
                     }
                 }
-                else if (CheckOutStartTime <= recordTime && recordTime <= CheckOutEndTime)
+                else if (Settings.CheckOutStartTime <= recordTime && recordTime <= Settings.CheckOutEndTime)
                 {
                     // Check Out
                     classifiedRecords[recordDate][userId].CheckOutTimes.Add(recordDateTime);
+                }
+            }
+
+            // Handle default pause times if enabled in settings
+            if (Settings.UseDefaultPauseTime)
+            {
+                foreach (var dateEntry in classifiedRecords)
+                {
+                    foreach (var userEntry in dateEntry.Value)
+                    {
+                        var attendance = userEntry.Value;
+                        
+                        // Check if we have check-in and check-out but no pause
+                        if (attendance.CheckInTimes.Count > 0 && attendance.CheckOutTimes.Count > 0 && 
+                            (attendance.PauseStartTimes.Count == 0 || attendance.PauseEndTimes.Count == 0))
+                        {
+                            // Get earliest check-in and latest check-out
+                            DateTime firstCheckIn = attendance.CheckInTimes.Min();
+                            DateTime lastCheckOut = attendance.CheckOutTimes.Max();
+                            
+                            // Only add default pause if there's enough time between check-in and check-out
+                            if ((lastCheckOut - firstCheckIn).TotalHours >= 5)
+                            {
+                                // Calculate default pause time (noon + settings.defaultPauseTime/2 before and after)
+                                DateTime noon = attendance.Date.AddHours(12);
+                                
+                                // Add default pause start and end
+                                if (attendance.PauseStartTimes.Count == 0)
+                                {
+                                    attendance.PauseStartTimes.Add(noon.AddMinutes(-(Settings.DefaultPauseTime.TotalMinutes / 2)));
+                                    attendance.HasDefaultPauseStart = true;
+                                }
+                                
+                                if (attendance.PauseEndTimes.Count == 0)
+                                {
+                                    attendance.PauseEndTimes.Add(noon.AddMinutes(Settings.DefaultPauseTime.TotalMinutes / 2));
+                                    attendance.HasDefaultPauseEnd = true;
+                                }
+                            }
+                        }
+                    }
                 }
             }
 

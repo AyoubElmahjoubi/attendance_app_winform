@@ -18,18 +18,16 @@ namespace BioMetrixCore
         private Dictionary<DateTime, Dictionary<int, ClassifiedAttendance>> classifiedRecords;
         private Dictionary<int, Dictionary<DateTime, WorkTimeData>> workTimesData;
 
-        // Date limits for check-in and check-out
-        private readonly TimeSpan checkInLimit = new TimeSpan(9, 15, 0); // 09:15
-        private readonly TimeSpan checkOutLimit = new TimeSpan(18, 30, 0); // 18:30
-        private readonly TimeSpan pauseLimit = new TimeSpan(1, 0, 0); // 1 hour
+        // Get settings from AttendanceSettings
+        private AttendanceSettings Settings => AttendanceSettings.Instance;
 
         // Columns for the DataGridView
         private readonly string[] columnsAll = new string[] { 
-            "Date", "Employee", "Check In", "Pause", "Pause Time", "Check Out", "Work Time", "Notes" 
+            "Date", "Employee", "Check In", "Pause Start", "Pause End", "Check Out", "Total Pause Time", "Total Work Time", "Remarque"
         };
         
         private readonly string[] columnsSingle = new string[] { 
-            "Date", "Check In", "Pause", "Pause Time", "Check Out", "Work Time", "Notes" 
+            "Date", "Check In", "Pause Start", "Pause End", "Check Out", "Total Pause Time", "Total Work Time", "Remarque"
         };
 
         public AttendanceClassifierForm()
@@ -211,7 +209,8 @@ namespace BioMetrixCore
                     
                     // Format times
                     string checkInTimes = string.Join(", ", attendance.CheckInTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
-                    string pauseTimes = string.Join(", ", attendance.PauseStartTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
+                    string pauseStartTimes = string.Join(", ", attendance.PauseStartTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
+                    string pauseEndTimes = string.Join(", ", attendance.PauseEndTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
                     
                     // Get work time info
                     var workTimeInfo = workTimesData.ContainsKey(userId) && workTimesData[userId].ContainsKey(date) 
@@ -231,11 +230,12 @@ namespace BioMetrixCore
                         // Single user format
                         row["Date"] = date.ToString("yyyy-MM-dd");
                         row["Check In"] = checkInTimes;
-                        row["Pause"] = pauseTimes;
-                        row["Pause Time"] = totalPauseTime;
+                        row["Pause Start"] = pauseStartTimes;
+                        row["Pause End"] = pauseEndTimes;
                         row["Check Out"] = checkOutTimes;
-                        row["Work Time"] = totalWorkTime;
-                        row["Notes"] = notes;
+                        row["Total Pause Time"] = totalPauseTime;
+                        row["Total Work Time"] = totalWorkTime;
+                        row["Remarque"] = notes;
                     }
                     else
                     {
@@ -243,11 +243,12 @@ namespace BioMetrixCore
                         row["Date"] = date.ToString("yyyy-MM-dd");
                         row["Employee"] = userName;
                         row["Check In"] = checkInTimes;
-                        row["Pause"] = pauseTimes;
-                        row["Pause Time"] = totalPauseTime;
+                        row["Pause Start"] = pauseStartTimes;
+                        row["Pause End"] = pauseEndTimes;
                         row["Check Out"] = checkOutTimes;
-                        row["Work Time"] = totalWorkTime;
-                        row["Notes"] = notes;
+                        row["Total Pause Time"] = totalPauseTime;
+                        row["Total Work Time"] = totalWorkTime;
+                        row["Remarque"] = notes;
                     }
                     
                     dataTable.Rows.Add(row);
@@ -287,6 +288,119 @@ namespace BioMetrixCore
             
             // Apply conditional formatting
             ApplyConditionalFormatting();
+            
+            // Highlight cells based on time conditions
+            HighlightCells();
+        }
+
+        private void HighlightCells()
+        {
+            // Define colors for different states
+            Color lateColor = Color.LightCoral;
+            Color earlyColor = Color.LightCoral;
+            Color longPauseColor = Color.LightCoral;
+            Color defaultPauseColor = Color.LightBlue; // Color for default pause times
+            
+            foreach (DataGridViewRow row in dgvAttendance.Rows)
+            {
+                // Skip header row
+                if (row.IsNewRow) continue;
+                
+                // Check Check-In Time
+                if (row.Cells["Check In"].Value != null)
+                {
+                    string checkInStr = row.Cells["Check In"].Value.ToString();
+                    var parts = checkInStr.Split(':');
+                    if (parts.Length == 2 && int.TryParse(parts[0], out int hour) && int.TryParse(parts[1], out int minute))
+                    {
+                        var checkInTime = new TimeSpan(hour, minute, 0);
+                        if (checkInTime > Settings.CheckInLimit)
+                        {
+                            row.Cells["Check In"].Style.BackColor = lateColor;
+                        }
+                    }
+                }
+                
+                // Check Check-Out Time
+                if (row.Cells["Check Out"].Value != null)
+                {
+                    string checkOutStr = row.Cells["Check Out"].Value.ToString();
+                    var parts = checkOutStr.Split(':');
+                    if (parts.Length == 2 && int.TryParse(parts[0], out int hour) && int.TryParse(parts[1], out int minute))
+                    {
+                        var checkOutTime = new TimeSpan(hour, minute, 0);
+                        if (checkOutTime < Settings.CheckOutLimit)
+                        {
+                            row.Cells["Check Out"].Style.BackColor = earlyColor;
+                        }
+                    }
+                }
+                
+                // Check Total Pause Time
+                if (row.Cells["Total Pause Time"].Value != null)
+                {
+                    string pauseStr = row.Cells["Total Pause Time"].Value.ToString();
+                    var parts = pauseStr.Split(':');
+                    if (parts.Length == 2 && int.TryParse(parts[0], out int hour) && int.TryParse(parts[1], out int minute))
+                    {
+                        var pauseTime = new TimeSpan(hour, minute, 0);
+                        if (pauseTime > Settings.MaxPauseDuration)
+                        {
+                            row.Cells["Total Pause Time"].Style.BackColor = longPauseColor;
+                        }
+                    }
+                }
+                
+                // Get the corresponding record to check for default pause times
+                string dateStr = row.Cells["Date"].Value.ToString();
+                string employeeStr = row.Cells.Count > 1 && row.Cells["Employee"] != null ? 
+                    row.Cells["Employee"].Value.ToString() : null;
+                
+                // Find the record for this row
+                DateTime date = DateTime.Parse(dateStr);
+                int? userId = null;
+                
+                // Try to get the user ID
+                if (classifiedRecords.ContainsKey(date))
+                {
+                    foreach (var userEntry in classifiedRecords[date])
+                    {
+                        // If employee column exists, match by name/id
+                        if (employeeStr != null)
+                        {
+                            if (userEntry.Value.UserName == employeeStr || userEntry.Key.ToString() == employeeStr)
+                            {
+                                userId = userEntry.Key;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            // If no employee column, we have a single user selected
+                            userId = userEntry.Key;
+                            break;
+                        }
+                    }
+                }
+                
+                // If we found the record, check for default pause times
+                if (userId.HasValue && classifiedRecords.ContainsKey(date) && classifiedRecords[date].ContainsKey(userId.Value))
+                {
+                    var record = classifiedRecords[date][userId.Value];
+                    
+                    // Highlight default pause start if applicable
+                    if (record.HasDefaultPauseStart)
+                    {
+                        row.Cells["Pause Start"].Style.BackColor = defaultPauseColor;
+                    }
+                    
+                    // Highlight default pause end if applicable
+                    if (record.HasDefaultPauseEnd)
+                    {
+                        row.Cells["Pause End"].Style.BackColor = defaultPauseColor;
+                    }
+                }
+            }
         }
 
         private void ApplyConditionalFormatting()
@@ -297,7 +411,7 @@ namespace BioMetrixCore
                 // Get values
                 string checkInStr = row.Cells["Check In"].Value?.ToString();
                 string checkOutStr = row.Cells["Check Out"].Value?.ToString();
-                string pauseTimeStr = row.Cells["Pause Time"].Value?.ToString();
+                string pauseTimeStr = row.Cells["Total Pause Time"].Value?.ToString();
 
                 // Check-in time check
                 if (!string.IsNullOrEmpty(checkInStr))
@@ -306,7 +420,7 @@ namespace BioMetrixCore
                     if (parts.Length == 2 && int.TryParse(parts[0], out int hour) && int.TryParse(parts[1], out int minute))
                     {
                         var checkInTime = new TimeSpan(hour, minute, 0);
-                        if (checkInTime > checkInLimit)
+                        if (checkInTime > Settings.CheckInLimit)
                         {
                             row.Cells["Check In"].Style.BackColor = Color.LightCoral;
                         }
@@ -321,7 +435,7 @@ namespace BioMetrixCore
                     if (parts.Length == 2 && int.TryParse(parts[0], out int hour) && int.TryParse(parts[1], out int minute))
                     {
                         var checkOutTime = new TimeSpan(hour, minute, 0);
-                        if (checkOutTime < checkOutLimit)
+                        if (checkOutTime < Settings.CheckOutLimit)
                         {
                             row.Cells["Check Out"].Style.BackColor = Color.LightCoral;
                         }
@@ -335,9 +449,9 @@ namespace BioMetrixCore
                     if (parts.Length == 2 && int.TryParse(parts[0], out int hour) && int.TryParse(parts[1], out int minute))
                     {
                         var pauseTime = new TimeSpan(hour, minute, 0);
-                        if (pauseTime > pauseLimit)
+                        if (pauseTime > Settings.MaxPauseDuration)
                         {
-                            row.Cells["Pause Time"].Style.BackColor = Color.LightCoral;
+                            row.Cells["Total Pause Time"].Style.BackColor = Color.LightCoral;
                         }
                     }
                 }
@@ -375,26 +489,11 @@ namespace BioMetrixCore
                         continue;
                     }
 
-                    // Get earliest check-in and latest check-out
-                    DateTime firstCheckIn = attendance.CheckInTimes.Min();
-                    DateTime lastCheckOut = attendance.CheckOutTimes.Max();
+                    // Get total pause time from the ClassifiedAttendance object
+                    TimeSpan totalPauseTime = attendance.TotalPauseTime ?? TimeSpan.Zero;
                     
-                    // Calculate total pause time
-                    TimeSpan totalPauseTime = TimeSpan.Zero;
-                    int pauseCount = Math.Min(attendance.PauseStartTimes.Count, attendance.PauseEndTimes.Count);
-                    
-                    for (int i = 0; i < pauseCount; i++)
-                    {
-                        // Sort the pause times
-                        var startTimes = attendance.PauseStartTimes.OrderBy(t => t).ToList();
-                        var endTimes = attendance.PauseEndTimes.OrderBy(t => t).ToList();
-                        
-                        // Calculate pause duration
-                        totalPauseTime += endTimes[i] - startTimes[i];
-                    }
-                    
-                    // Calculate total work time
-                    TimeSpan totalWorkTime = (lastCheckOut - firstCheckIn) - totalPauseTime;
+                    // Get total work time from the ClassifiedAttendance object
+                    TimeSpan totalWorkTime = attendance.TotalWorkTime ?? TimeSpan.Zero;
                     
                     // Store the calculated times
                     workTimes[userId][date].TotalWorkTime = totalWorkTime;
@@ -404,19 +503,27 @@ namespace BioMetrixCore
                     var notes = "";
                     
                     // Check if check-in time is after the limit
-                    if (firstCheckIn.TimeOfDay > checkInLimit)
+                    if (attendance.CheckInTimes.Count > 0)
                     {
-                        notes += "Late arrival. ";
+                        var firstCheckIn = attendance.CheckInTimes.Min();
+                        if (firstCheckIn.TimeOfDay > Settings.CheckInLimit)
+                        {
+                            notes += "Late arrival. ";
+                        }
                     }
                     
                     // Check if check-out time is before the limit
-                    if (lastCheckOut.TimeOfDay < checkOutLimit)
+                    if (attendance.CheckOutTimes.Count > 0)
                     {
-                        notes += "Early departure. ";
+                        var lastCheckOut = attendance.CheckOutTimes.Max();
+                        if (lastCheckOut.TimeOfDay < Settings.CheckOutLimit)
+                        {
+                            notes += "Early departure. ";
+                        }
                     }
                     
                     // Check if pause time exceeds the limit
-                    if (totalPauseTime > pauseLimit)
+                    if (totalPauseTime > Settings.MaxPauseDuration)
                     {
                         notes += "Extended pause. ";
                     }
@@ -514,17 +621,17 @@ namespace BioMetrixCore
                 document.Add(employeePara);
                 
                 // Create table
-                PdfPTable table = new PdfPTable(selectedUserId.HasValue ? 7 : 8);
+                PdfPTable table = new PdfPTable(selectedUserId.HasValue ? 8 : 9);
                 table.WidthPercentage = 100;
                 
                 // Set relative column widths
                 if (selectedUserId.HasValue)
                 {
-                    table.SetWidths(new float[] { 1.5f, 2f, 1.5f, 1.5f, 2f, 1.5f, 3f });
+                    table.SetWidths(new float[] { 1.5f, 2f, 1.5f, 1.5f, 1.5f, 2f, 1.5f, 3f });
                 }
                 else
                 {
-                    table.SetWidths(new float[] { 1.5f, 2f, 2f, 1.5f, 1.5f, 2f, 1.5f, 3f });
+                    table.SetWidths(new float[] { 1.5f, 2f, 2f, 1.5f, 1.5f, 1.5f, 2f, 1.5f, 3f });
                 }
                 
                 // Add table header row
@@ -536,10 +643,11 @@ namespace BioMetrixCore
                 {
                     AddTableCell(table, "Date", headerFont, true);
                     AddTableCell(table, "Entrée", headerFont, true);
-                    AddTableCell(table, "Pause", headerFont, true);
-                    AddTableCell(table, "Temps de pause", headerFont, true);
+                    AddTableCell(table, "Pause Début", headerFont, true);
+                    AddTableCell(table, "Pause Fin", headerFont, true);
                     AddTableCell(table, "Sortie", headerFont, true);
-                    AddTableCell(table, "Temps de travail", headerFont, true);
+                    AddTableCell(table, "Temps de pause total", headerFont, true);
+                    AddTableCell(table, "Temps de travail total", headerFont, true);
                     AddTableCell(table, "Remarque", headerFont, true);
                 }
                 else
@@ -547,10 +655,11 @@ namespace BioMetrixCore
                     AddTableCell(table, "Date", headerFont, true);
                     AddTableCell(table, "Employé", headerFont, true);
                     AddTableCell(table, "Entrée", headerFont, true);
-                    AddTableCell(table, "Pause", headerFont, true);
-                    AddTableCell(table, "Temps de pause", headerFont, true);
+                    AddTableCell(table, "Pause Début", headerFont, true);
+                    AddTableCell(table, "Pause Fin", headerFont, true);
                     AddTableCell(table, "Sortie", headerFont, true);
-                    AddTableCell(table, "Temps de travail", headerFont, true);
+                    AddTableCell(table, "Temps de pause total", headerFont, true);
+                    AddTableCell(table, "Temps de travail total", headerFont, true);
                     AddTableCell(table, "Remarque", headerFont, true);
                 }
                 
@@ -577,7 +686,8 @@ namespace BioMetrixCore
                         
                         // Format times
                         string checkInTimes = string.Join(", ", attendance.CheckInTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
-                        string pauseTimes = string.Join(", ", attendance.PauseStartTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
+                        string pauseStartTimes = string.Join(", ", attendance.PauseStartTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
+                        string pauseEndTimes = string.Join(", ", attendance.PauseEndTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
                         
                         // Get work time info
                         var workTimeInfo = workTimesData.ContainsKey(userId) && workTimesData[userId].ContainsKey(date) 
@@ -598,18 +708,18 @@ namespace BioMetrixCore
                         if (attendance.CheckInTimes.Count > 0)
                         {
                             var firstCheckIn = attendance.CheckInTimes.Min();
-                            lateArrival = firstCheckIn.TimeOfDay > checkInLimit;
+                            lateArrival = firstCheckIn.TimeOfDay > Settings.CheckInLimit;
                         }
 
                         // Check check-out time
                         if (attendance.CheckOutTimes.Count > 0)
                         {
                             var lastCheckOut = attendance.CheckOutTimes.Max();
-                            earlyDeparture = lastCheckOut.TimeOfDay < checkOutLimit;
+                            earlyDeparture = lastCheckOut.TimeOfDay < Settings.CheckOutLimit;
                         }
 
                         // Check pause time
-                        longPause = workTimeInfo.TotalPauseTime > pauseLimit;
+                        longPause = workTimeInfo.TotalPauseTime > Settings.MaxPauseDuration;
 
                         // Add data to table
                         if (selectedUserId.HasValue)
@@ -617,9 +727,10 @@ namespace BioMetrixCore
                             // Single user format
                             AddTableCell(table, date.ToString("yyyy-MM-dd"), cellFont);
                             AddTableCell(table, checkInTimes, lateArrival ? redFont : cellFont);
-                            AddTableCell(table, pauseTimes, cellFont);
-                            AddTableCell(table, totalPauseTime, longPause ? redFont : cellFont);
+                            AddTableCell(table, pauseStartTimes, cellFont);
+                            AddTableCell(table, pauseEndTimes, cellFont);
                             AddTableCell(table, checkOutTimes, earlyDeparture ? redFont : cellFont);
+                            AddTableCell(table, totalPauseTime, longPause ? redFont : cellFont);
                             AddTableCell(table, totalWorkTime, cellFont);
                             AddTableCell(table, notes, cellFont);
                         }
@@ -629,9 +740,10 @@ namespace BioMetrixCore
                             AddTableCell(table, date.ToString("yyyy-MM-dd"), cellFont);
                             AddTableCell(table, userName, cellFont);
                             AddTableCell(table, checkInTimes, lateArrival ? redFont : cellFont);
-                            AddTableCell(table, pauseTimes, cellFont);
-                            AddTableCell(table, totalPauseTime, longPause ? redFont : cellFont);
+                            AddTableCell(table, pauseStartTimes, cellFont);
+                            AddTableCell(table, pauseEndTimes, cellFont);
                             AddTableCell(table, checkOutTimes, earlyDeparture ? redFont : cellFont);
+                            AddTableCell(table, totalPauseTime, longPause ? redFont : cellFont);
                             AddTableCell(table, totalWorkTime, cellFont);
                             AddTableCell(table, notes, cellFont);
                         }
@@ -693,6 +805,19 @@ namespace BioMetrixCore
         {
             // Optional: Auto-apply filter when user selection changes
             // ApplyFilters();
+        }
+        
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var settingsForm = new AttendanceSettingsForm();
+            if (settingsForm.ShowDialog() == DialogResult.OK)
+            {
+                // Refresh the data with new settings
+                if (classifiedRecords != null)
+                {
+                    ApplyFilters();
+                }
+            }
         }
         
         #endregion

@@ -327,6 +327,17 @@ namespace BioMetrixCore
             }
         }
 
+        private void btnAttendanceSettings_Click(object sender, EventArgs e)
+        {
+            using (var frm = new AttendanceSettingsForm())
+            {
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+                    ShowStatusBar("Attendance settings updated successfully", true);
+                }
+            }
+        }
+
 
         private void ClearGrid()
         {

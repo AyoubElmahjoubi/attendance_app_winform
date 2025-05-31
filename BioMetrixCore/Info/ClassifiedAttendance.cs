@@ -12,6 +12,37 @@ namespace BioMetrixCore
         public List<DateTime> PauseStartTimes { get; set; } = new List<DateTime>();
         public List<DateTime> PauseEndTimes { get; set; } = new List<DateTime>();
         public List<DateTime> CheckOutTimes { get; set; } = new List<DateTime>();
+        
+        // Track if pause times were added automatically
+        public bool HasDefaultPauseStart { get; set; } = false;
+        public bool HasDefaultPauseEnd { get; set; } = false;
+
+        public TimeSpan? TotalPauseTime
+        {
+            get
+            {
+                // If no pause data, return zero
+                if (PauseStartTimes.Count == 0 || PauseEndTimes.Count == 0)
+                    return TimeSpan.Zero;
+
+                // Calculate total pause time by summing the time between each start and end
+                TimeSpan pauseTime = TimeSpan.Zero;
+                int pauseCount = Math.Min(PauseStartTimes.Count, PauseEndTimes.Count);
+                
+                // Sort both lists to ensure proper pairing
+                var sortedStarts = new List<DateTime>(PauseStartTimes);
+                var sortedEnds = new List<DateTime>(PauseEndTimes);
+                sortedStarts.Sort();
+                sortedEnds.Sort();
+                
+                for (int i = 0; i < pauseCount; i++)
+                {
+                    pauseTime += sortedEnds[i] - sortedStarts[i];
+                }
+
+                return pauseTime;
+            }
+        }
 
         public TimeSpan? TotalWorkTime
         {
@@ -35,14 +66,8 @@ namespace BioMetrixCore
                         lastCheckOut = time;
                 }
 
-                // Calculate total pause time
-                TimeSpan pauseTime = TimeSpan.Zero;
-                int pauseCount = Math.Min(PauseStartTimes.Count, PauseEndTimes.Count);
-                
-                for (int i = 0; i < pauseCount; i++)
-                {
-                    pauseTime += PauseEndTimes[i] - PauseStartTimes[i];
-                }
+                // Get the total pause time
+                var pauseTime = TotalPauseTime ?? TimeSpan.Zero;
 
                 // Calculate work time (check-out minus check-in minus pause time)
                 return (lastCheckOut - firstCheckIn) - pauseTime;

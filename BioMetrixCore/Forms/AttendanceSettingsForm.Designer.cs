@@ -60,6 +60,7 @@ namespace BioMetrixCore
             this.btnSave = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
+            this.lblTabDescription = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabLimits.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -79,6 +80,7 @@ namespace BioMetrixCore
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(460, 350);
             this.tabControl1.TabIndex = 0;
+            this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
             // tabLimits
             // 
@@ -395,19 +397,29 @@ namespace BioMetrixCore
             // 
             // btnReset
             // 
-            this.btnReset.Location = new System.Drawing.Point(16, 376);
+            this.btnReset.Location = new System.Drawing.Point(12, 368);
             this.btnReset.Name = "btnReset";
-            this.btnReset.Size = new System.Drawing.Size(111, 23);
+            this.btnReset.Size = new System.Drawing.Size(75, 23);
             this.btnReset.TabIndex = 3;
-            this.btnReset.Text = "Reset to Defaults";
+            this.btnReset.Text = "Reset";
             this.btnReset.UseVisualStyleBackColor = true;
             this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
+            // 
+            // lblTabDescription
+            // 
+            this.lblTabDescription.AutoSize = true;
+            this.lblTabDescription.Location = new System.Drawing.Point(15, 365);
+            this.lblTabDescription.Name = "lblTabDescription";
+            this.lblTabDescription.Size = new System.Drawing.Size(311, 13);
+            this.lblTabDescription.TabIndex = 4;
+            this.lblTabDescription.Text = "Configure time limits that will trigger alerts when exceeded.";
             // 
             // AttendanceSettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(484, 411);
+            this.Controls.Add(this.lblTabDescription);
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
@@ -432,6 +444,7 @@ namespace BioMetrixCore
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -442,6 +455,7 @@ namespace BioMetrixCore
         private System.Windows.Forms.TabPage tabTimeRanges;
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.DateTimePicker dtpCheckInLimit;
@@ -453,7 +467,6 @@ namespace BioMetrixCore
         private System.Windows.Forms.CheckBox chkUseDefaultPause;
         private System.Windows.Forms.DateTimePicker dtpDefaultPauseTime;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.DateTimePicker dtpCheckInEnd;
         private System.Windows.Forms.DateTimePicker dtpCheckInStart;
@@ -469,5 +482,6 @@ namespace BioMetrixCore
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.DateTimePicker dtpPauseEnd;
         private System.Windows.Forms.DateTimePicker dtpPauseStart;
+        private System.Windows.Forms.Label lblTabDescription;
     }
 }

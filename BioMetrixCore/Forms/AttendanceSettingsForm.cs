@@ -12,6 +12,9 @@ namespace BioMetrixCore
             InitializeComponent();
             settings = AttendanceSettings.Instance;
             LoadSettings();
+            
+            // Show descriptions for each tab
+            lblTabDescription.Text = "Configure time limits that will trigger alerts (highlighted in red) when exceeded.";
         }
 
         private void LoadSettings()
@@ -85,6 +88,23 @@ namespace BioMetrixCore
         private void chkUseDefaultPause_CheckedChanged(object sender, EventArgs e)
         {
             dtpDefaultPauseTime.Enabled = chkUseDefaultPause.Checked;
+        }
+        
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Update the description label based on the selected tab
+            switch (tabControl1.SelectedIndex)
+            {
+                case 0: // Limits tab
+                    lblTabDescription.Text = "Configure time limits that will trigger alerts (highlighted in red) when exceeded.";
+                    break;
+                case 1: // Time Ranges tab
+                    lblTabDescription.Text = "Configure the time ranges used to classify fingerprint records as check-in, pause, or check-out.";
+                    break;
+                default:
+                    lblTabDescription.Text = "";
+                    break;
+            }
         }
     }
 }

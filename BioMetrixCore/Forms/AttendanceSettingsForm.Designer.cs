@@ -30,6 +30,13 @@ namespace BioMetrixCore
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabLimits = new System.Windows.Forms.TabPage();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.chkUseDefaultCheckOut = new System.Windows.Forms.CheckBox();
+            this.chkUseDefaultCheckIn = new System.Windows.Forms.CheckBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.dtpDefaultCheckOutTime = new System.Windows.Forms.DateTimePicker();
+            this.dtpDefaultCheckInTime = new System.Windows.Forms.DateTimePicker();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label11 = new System.Windows.Forms.Label();
             this.dtpDefaultPauseTime = new System.Windows.Forms.DateTimePicker();
@@ -63,6 +70,7 @@ namespace BioMetrixCore
             this.lblTabDescription = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabLimits.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabTimeRanges.SuspendLayout();
@@ -78,21 +86,99 @@ namespace BioMetrixCore
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(460, 350);
+            this.tabControl1.Size = new System.Drawing.Size(460, 400);
             this.tabControl1.TabIndex = 0;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
             // tabLimits
             // 
+            this.tabLimits.Controls.Add(this.groupBox6);
             this.tabLimits.Controls.Add(this.groupBox2);
             this.tabLimits.Controls.Add(this.groupBox1);
             this.tabLimits.Location = new System.Drawing.Point(4, 22);
             this.tabLimits.Name = "tabLimits";
             this.tabLimits.Padding = new System.Windows.Forms.Padding(3);
-            this.tabLimits.Size = new System.Drawing.Size(452, 324);
+            this.tabLimits.Size = new System.Drawing.Size(452, 374);
             this.tabLimits.TabIndex = 0;
             this.tabLimits.Text = "Alert Limits";
             this.tabLimits.UseVisualStyleBackColor = true;
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.chkUseDefaultCheckOut);
+            this.groupBox6.Controls.Add(this.chkUseDefaultCheckIn);
+            this.groupBox6.Controls.Add(this.label13);
+            this.groupBox6.Controls.Add(this.label12);
+            this.groupBox6.Controls.Add(this.dtpDefaultCheckOutTime);
+            this.groupBox6.Controls.Add(this.dtpDefaultCheckInTime);
+            this.groupBox6.Location = new System.Drawing.Point(16, 253);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(420, 110);
+            this.groupBox6.TabIndex = 2;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Default Check-In/Out Settings";
+            // 
+            // chkUseDefaultCheckOut
+            // 
+            this.chkUseDefaultCheckOut.AutoSize = true;
+            this.chkUseDefaultCheckOut.Location = new System.Drawing.Point(325, 25);
+            this.chkUseDefaultCheckOut.Name = "chkUseDefaultCheckOut";
+            this.chkUseDefaultCheckOut.Size = new System.Drawing.Size(93, 17);
+            this.chkUseDefaultCheckOut.TabIndex = 1;
+            this.chkUseDefaultCheckOut.Text = "Use for check-out";
+            this.chkUseDefaultCheckOut.UseVisualStyleBackColor = true;
+            this.chkUseDefaultCheckOut.CheckedChanged += new System.EventHandler(this.chkUseDefaultCheckOut_CheckedChanged);
+            // 
+            // chkUseDefaultCheckIn
+            // 
+            this.chkUseDefaultCheckIn.AutoSize = true;
+            this.chkUseDefaultCheckIn.Location = new System.Drawing.Point(76, 25);
+            this.chkUseDefaultCheckIn.Name = "chkUseDefaultCheckIn";
+            this.chkUseDefaultCheckIn.Size = new System.Drawing.Size(269, 17);
+            this.chkUseDefaultCheckIn.TabIndex = 0;
+            this.chkUseDefaultCheckIn.Text = "Use default check-in time when no record is found";
+            this.chkUseDefaultCheckIn.UseVisualStyleBackColor = true;
+            this.chkUseDefaultCheckIn.CheckedChanged += new System.EventHandler(this.chkUseDefaultCheckIn_CheckedChanged);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(108, 78);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(128, 13);
+            this.label13.TabIndex = 4;
+            this.label13.Text = "Default Check-Out Time:";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(108, 52);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(120, 13);
+            this.label12.TabIndex = 3;
+            this.label12.Text = "Default Check-In Time:";
+            // 
+            // dtpDefaultCheckOutTime
+            // 
+            this.dtpDefaultCheckOutTime.CustomFormat = "HH:mm";
+            this.dtpDefaultCheckOutTime.Enabled = false;
+            this.dtpDefaultCheckOutTime.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpDefaultCheckOutTime.Location = new System.Drawing.Point(236, 74);
+            this.dtpDefaultCheckOutTime.Name = "dtpDefaultCheckOutTime";
+            this.dtpDefaultCheckOutTime.ShowUpDown = true;
+            this.dtpDefaultCheckOutTime.Size = new System.Drawing.Size(70, 20);
+            this.dtpDefaultCheckOutTime.TabIndex = 5;
+            // 
+            // dtpDefaultCheckInTime
+            // 
+            this.dtpDefaultCheckInTime.CustomFormat = "HH:mm";
+            this.dtpDefaultCheckInTime.Enabled = false;
+            this.dtpDefaultCheckInTime.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpDefaultCheckInTime.Location = new System.Drawing.Point(236, 48);
+            this.dtpDefaultCheckInTime.Name = "dtpDefaultCheckInTime";
+            this.dtpDefaultCheckInTime.ShowUpDown = true;
+            this.dtpDefaultCheckInTime.Size = new System.Drawing.Size(70, 20);
+            this.dtpDefaultCheckInTime.TabIndex = 2;
             // 
             // groupBox2
             // 
@@ -101,7 +187,7 @@ namespace BioMetrixCore
             this.groupBox2.Controls.Add(this.chkUseDefaultPause);
             this.groupBox2.Location = new System.Drawing.Point(16, 177);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(420, 123);
+            this.groupBox2.Size = new System.Drawing.Size(420, 70);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Default Pause Settings";
@@ -109,7 +195,7 @@ namespace BioMetrixCore
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(19, 76);
+            this.label11.Location = new System.Drawing.Point(19, 32);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(146, 13);
             this.label11.TabIndex = 3;
@@ -120,7 +206,7 @@ namespace BioMetrixCore
             this.dtpDefaultPauseTime.CustomFormat = "HH:mm";
             this.dtpDefaultPauseTime.Enabled = false;
             this.dtpDefaultPauseTime.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtpDefaultPauseTime.Location = new System.Drawing.Point(171, 73);
+            this.dtpDefaultPauseTime.Location = new System.Drawing.Point(171, 29);
             this.dtpDefaultPauseTime.Name = "dtpDefaultPauseTime";
             this.dtpDefaultPauseTime.ShowUpDown = true;
             this.dtpDefaultPauseTime.Size = new System.Drawing.Size(100, 20);
@@ -129,7 +215,7 @@ namespace BioMetrixCore
             // chkUseDefaultPause
             // 
             this.chkUseDefaultPause.AutoSize = true;
-            this.chkUseDefaultPause.Location = new System.Drawing.Point(22, 30);
+            this.chkUseDefaultPause.Location = new System.Drawing.Point(22, 9);
             this.chkUseDefaultPause.Name = "chkUseDefaultPause";
             this.chkUseDefaultPause.Size = new System.Drawing.Size(303, 17);
             this.chkUseDefaultPause.TabIndex = 0;
@@ -217,7 +303,7 @@ namespace BioMetrixCore
             this.tabTimeRanges.Location = new System.Drawing.Point(4, 22);
             this.tabTimeRanges.Name = "tabTimeRanges";
             this.tabTimeRanges.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTimeRanges.Size = new System.Drawing.Size(452, 324);
+            this.tabTimeRanges.Size = new System.Drawing.Size(452, 374);
             this.tabTimeRanges.TabIndex = 1;
             this.tabTimeRanges.Text = "Classification Ranges";
             this.tabTimeRanges.UseVisualStyleBackColor = true;
@@ -377,7 +463,7 @@ namespace BioMetrixCore
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(316, 376);
+            this.btnSave.Location = new System.Drawing.Point(316, 445);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 1;
@@ -387,7 +473,7 @@ namespace BioMetrixCore
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(397, 376);
+            this.btnCancel.Location = new System.Drawing.Point(397, 445);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 2;
@@ -397,7 +483,7 @@ namespace BioMetrixCore
             // 
             // btnReset
             // 
-            this.btnReset.Location = new System.Drawing.Point(12, 368);
+            this.btnReset.Location = new System.Drawing.Point(12, 445);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(75, 23);
             this.btnReset.TabIndex = 3;
@@ -408,7 +494,7 @@ namespace BioMetrixCore
             // lblTabDescription
             // 
             this.lblTabDescription.AutoSize = true;
-            this.lblTabDescription.Location = new System.Drawing.Point(15, 365);
+            this.lblTabDescription.Location = new System.Drawing.Point(15, 424);
             this.lblTabDescription.Name = "lblTabDescription";
             this.lblTabDescription.Size = new System.Drawing.Size(311, 13);
             this.lblTabDescription.TabIndex = 4;
@@ -418,7 +504,7 @@ namespace BioMetrixCore
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(484, 411);
+            this.ClientSize = new System.Drawing.Size(484, 471);
             this.Controls.Add(this.lblTabDescription);
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.btnCancel);
@@ -432,6 +518,8 @@ namespace BioMetrixCore
             this.Text = "Attendance Settings";
             this.tabControl1.ResumeLayout(false);
             this.tabLimits.ResumeLayout(false);
+            this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
@@ -483,5 +571,12 @@ namespace BioMetrixCore
         private System.Windows.Forms.DateTimePicker dtpPauseEnd;
         private System.Windows.Forms.DateTimePicker dtpPauseStart;
         private System.Windows.Forms.Label lblTabDescription;
+        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.DateTimePicker dtpDefaultCheckOutTime;
+        private System.Windows.Forms.DateTimePicker dtpDefaultCheckInTime;
+        private System.Windows.Forms.CheckBox chkUseDefaultCheckOut;
+        private System.Windows.Forms.CheckBox chkUseDefaultCheckIn;
     }
 }

@@ -300,6 +300,7 @@ namespace BioMetrixCore
             Color earlyColor = Color.LightCoral;
             Color longPauseColor = Color.LightCoral;
             Color defaultPauseColor = Color.LightBlue; // Color for default pause times
+            Color defaultCheckInOutColor = Color.LightGreen; // Color for default check-in/out times
             
             foreach (DataGridViewRow row in dgvAttendance.Rows)
             {
@@ -398,6 +399,18 @@ namespace BioMetrixCore
                     if (record.HasDefaultPauseEnd)
                     {
                         row.Cells["Pause End"].Style.BackColor = defaultPauseColor;
+                    }
+                    
+                    // Highlight default check-in if applicable
+                    if (record.HasDefaultCheckIn)
+                    {
+                        row.Cells["Check In"].Style.BackColor = defaultCheckInOutColor;
+                    }
+                    
+                    // Highlight default check-out if applicable
+                    if (record.HasDefaultCheckOut)
+                    {
+                        row.Cells["Check Out"].Style.BackColor = defaultCheckInOutColor;
                     }
                 }
             }

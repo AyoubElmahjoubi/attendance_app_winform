@@ -73,54 +73,206 @@ namespace BioMetrixCore
                 }
             }
 
-            // Handle default pause times if enabled in settings
-            if (Settings.UseDefaultPauseTime)
-            {
-                foreach (var dateEntry in classifiedRecords)
-                {
-                    foreach (var userEntry in dateEntry.Value)
-                    {
-                        var attendance = userEntry.Value;
-                        
-                        // Check if we have check-in and check-out but no pause
-                        if (attendance.CheckInTimes.Count > 0 && attendance.CheckOutTimes.Count > 0 && 
-                            (attendance.PauseStartTimes.Count == 0 || attendance.PauseEndTimes.Count == 0))
-                        {
-                            // Get earliest check-in and latest check-out
-                            DateTime firstCheckIn = attendance.CheckInTimes.Min();
-                            DateTime lastCheckOut = attendance.CheckOutTimes.Max();
-                            
-                            // Only add default pause if there's enough time between check-in and check-out
-                            if ((lastCheckOut - firstCheckIn).TotalHours >= 5)
-                            {
-                                // Calculate default pause time (noon + settings.defaultPauseTime/2 before and after)
-                                DateTime noon = attendance.Date.AddHours(12);
-                                
-                                // Add default pause start and end
-                                if (attendance.PauseStartTimes.Count == 0)
-                                {
-                                    attendance.PauseStartTimes.Add(noon.AddMinutes(-(Settings.DefaultPauseTime.TotalMinutes / 2)));
-                                    attendance.HasDefaultPauseStart = true;
-                                }
-                                
-                                if (attendance.PauseEndTimes.Count == 0)
-                                {
-                                    attendance.PauseEndTimes.Add(noon.AddMinutes(Settings.DefaultPauseTime.TotalMinutes / 2));
-                                    attendance.HasDefaultPauseEnd = true;
-                                }
-                                
-                                // If both pause start and end times are defaults, hide them
-                                if (attendance.HasDefaultPauseStart && attendance.HasDefaultPauseEnd)
-                                {
-                                    attendance.HidePauseTimes = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            // Handle default values for missing records in a comprehensive and integrated way
+            ApplyDefaultValues(classifiedRecords);
 
             return classifiedRecords;
+        }
+
+        /// <summary>
+        /// Apply default values for missing records in a comprehensive and integrated way
+        /// </summary>
+        private static void ApplyDefaultValues(Dictionary<DateTime, Dictionary<int, ClassifiedAttendance>> classifiedRecords)
+        {
+            // Skip if no default options are enabled
+            if (!Settings.UseDefaultCheckInTime && !Settings.UseDefaultCheckOutTime && !Settings.UseDefaultPauseTime)
+                return;
+                
+            foreach (var dateEntry in classifiedRecords)
+            {
+                DateTime date = dateEntry.Key;
+                
+                foreach (var userEntry in dateEntry.Value)
+                {
+                    var attendance = userEntry.Value;
+                    
+                    // First handle check-in as it's the starting point
+                    ApplyDefaultCheckIn(attendance, date);
+                    
+                    // Then handle pause times which depend on check-in
+                    ApplyDefaultPauseTimes(attendance, date);
+                    
+                    // Finally handle check-out which may depend on both check-in and pause
+                    ApplyDefaultCheckOut(attendance, date);
+                    
+                    // Verify time sequence is logical and make adjustments if needed
+                    EnsureLogicalTimeSequence(attendance, date);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Apply default check-in time if needed
+        /// </summary>
+        private static void ApplyDefaultCheckIn(ClassifiedAttendance attendance, DateTime date)
+        {
+            if (Settings.UseDefaultCheckInTime && attendance.CheckInTimes.Count == 0)
+            {
+                DateTime defaultCheckIn = date.Date.Add(Settings.DefaultCheckInTime);
+                attendance.CheckInTimes.Add(defaultCheckIn);
+                attendance.HasDefaultCheckIn = true;
+            }
+        }
+        
+        /// <summary>
+        /// Apply default pause times based on various scenarios
+        /// </summary>
+        private static void ApplyDefaultPauseTimes(ClassifiedAttendance attendance, DateTime date)
+        {
+            if (!Settings.UseDefaultPauseTime)
+                return;
+                
+            // Case 1: No pause times at all
+            if (attendance.PauseStartTimes.Count == 0 && attendance.PauseEndTimes.Count == 0)
+            {
+                DateTime noon = date.Date.AddHours(12);
+                
+                attendance.PauseStartTimes.Add(noon.AddMinutes(-(Settings.DefaultPauseTime.TotalMinutes / 2)));
+                attendance.HasDefaultPauseStart = true;
+                
+                attendance.PauseEndTimes.Add(noon.AddMinutes(Settings.DefaultPauseTime.TotalMinutes / 2));
+                attendance.HasDefaultPauseEnd = true;
+                
+                // Hide pause times when both are defaults
+                attendance.HidePauseTimes = true;
+            }
+            // Case 2: Only pause start times exist, no end times
+            else if (attendance.PauseStartTimes.Count > 0 && attendance.PauseEndTimes.Count == 0)
+            {
+                // Get the latest pause start time
+                DateTime latestPauseStart = attendance.PauseStartTimes.Max();
+                
+                // Add a default pause end time based on the latest start time
+                DateTime defaultPauseEnd = latestPauseStart.AddMinutes(Settings.DefaultPauseTime.TotalMinutes);
+                attendance.PauseEndTimes.Add(defaultPauseEnd);
+                attendance.HasDefaultPauseEnd = true;
+            }
+            // Case 3: Only pause end times exist, no start times
+            else if (attendance.PauseStartTimes.Count == 0 && attendance.PauseEndTimes.Count > 0)
+            {
+                // Get the earliest pause end time
+                DateTime earliestPauseEnd = attendance.PauseEndTimes.Min();
+                
+                // Add a default pause start time based on the earliest end time
+                DateTime defaultPauseStart = earliestPauseEnd.AddMinutes(-Settings.DefaultPauseTime.TotalMinutes);
+                attendance.PauseStartTimes.Add(defaultPauseStart);
+                attendance.HasDefaultPauseStart = true;
+            }
+        }
+        
+        /// <summary>
+        /// Apply default check-out time, considering existing values
+        /// </summary>
+        private static void ApplyDefaultCheckOut(ClassifiedAttendance attendance, DateTime date)
+        {
+            if (!Settings.UseDefaultCheckOutTime || attendance.CheckOutTimes.Count > 0)
+                return;
+                
+            // Determine the appropriate check-out time based on existing records
+            DateTime defaultCheckOut;
+            
+            // If we have pause end time(s), base check-out on the latest pause end
+            if (attendance.PauseEndTimes.Count > 0)
+            {
+                DateTime latestPauseEnd = attendance.PauseEndTimes.Max();
+                DateTime standardCheckOut = date.Date.Add(Settings.DefaultCheckOutTime);
+                
+                // Ensure at least 1 hour of work after pause
+                DateTime suggestedCheckOut = latestPauseEnd.AddHours(1);
+                
+                // Use the later of standard default or calculated time
+                defaultCheckOut = standardCheckOut > suggestedCheckOut ? standardCheckOut : suggestedCheckOut;
+            }
+            // If we have check-in time(s) but no pause records, ensure reasonable work duration
+            else if (attendance.CheckInTimes.Count > 0)
+            {
+                DateTime latestCheckIn = attendance.CheckInTimes.Max();
+                DateTime standardCheckOut = date.Date.Add(Settings.DefaultCheckOutTime);
+                
+                // Ensure at least 4 hours of work total if no pause
+                DateTime suggestedCheckOut = latestCheckIn.AddHours(4);
+                
+                // Use the later of standard default or calculated time
+                defaultCheckOut = standardCheckOut > suggestedCheckOut ? standardCheckOut : suggestedCheckOut;
+            }
+            // No check-in or pause records, just use the standard default
+            else
+            {
+                defaultCheckOut = date.Date.Add(Settings.DefaultCheckOutTime);
+            }
+            
+            attendance.CheckOutTimes.Add(defaultCheckOut);
+            attendance.HasDefaultCheckOut = true;
+        }
+        
+        /// <summary>
+        /// Ensure all times follow a logical sequence: check-in → pause start → pause end → check-out
+        /// </summary>
+        private static void EnsureLogicalTimeSequence(ClassifiedAttendance attendance, DateTime date)
+        {
+            // If we have all the times, verify and adjust the sequence if needed
+            if (attendance.CheckInTimes.Count > 0 && 
+                attendance.PauseStartTimes.Count > 0 && 
+                attendance.PauseEndTimes.Count > 0 && 
+                attendance.CheckOutTimes.Count > 0)
+            {
+                DateTime checkIn = attendance.CheckInTimes.Min();
+                DateTime pauseStart = attendance.PauseStartTimes.Min();
+                DateTime pauseEnd = attendance.PauseEndTimes.Max();
+                DateTime checkOut = attendance.CheckOutTimes.Max();
+                
+                // Fix pause start if it's before check-in
+                if (pauseStart < checkIn)
+                {
+                    // Remove the invalid pause start
+                    attendance.PauseStartTimes.Remove(pauseStart);
+                    
+                    // Add a new pause start that's 2 hours after check-in
+                    DateTime newPauseStart = checkIn.AddHours(2);
+                    attendance.PauseStartTimes.Add(newPauseStart);
+                    attendance.HasDefaultPauseStart = true;
+                }
+                
+                // Recalculate pause start
+                pauseStart = attendance.PauseStartTimes.Min();
+                
+                // Fix pause end if it's before pause start
+                if (pauseEnd < pauseStart)
+                {
+                    // Remove the invalid pause end
+                    attendance.PauseEndTimes.Remove(pauseEnd);
+                    
+                    // Add a new pause end that's the default duration after pause start
+                    DateTime newPauseEnd = pauseStart.AddMinutes(Settings.DefaultPauseTime.TotalMinutes);
+                    attendance.PauseEndTimes.Add(newPauseEnd);
+                    attendance.HasDefaultPauseEnd = true;
+                }
+                
+                // Recalculate pause end
+                pauseEnd = attendance.PauseEndTimes.Max();
+                
+                // Fix check-out if it's before pause end
+                if (checkOut < pauseEnd)
+                {
+                    // Remove the invalid check-out
+                    attendance.CheckOutTimes.Remove(checkOut);
+                    
+                    // Add a new check-out that's 1 hour after pause end
+                    DateTime newCheckOut = pauseEnd.AddHours(1);
+                    attendance.CheckOutTimes.Add(newCheckOut);
+                    attendance.HasDefaultCheckOut = true;
+                }
+            }
         }
 
         /// <summary>

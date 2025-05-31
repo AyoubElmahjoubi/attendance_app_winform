@@ -18,6 +18,12 @@ namespace BioMetrixCore
         // Flag to use default pause time when pause records are missing
         public bool UseDefaultPauseTime { get; set; } = false;
         
+        // Default check-in and check-out times
+        public bool UseDefaultCheckInTime { get; set; } = false;
+        public bool UseDefaultCheckOutTime { get; set; } = false;
+        public TimeSpan DefaultCheckInTime { get; set; } = new TimeSpan(9, 0, 0); // Default: 9:00 AM
+        public TimeSpan DefaultCheckOutTime { get; set; } = new TimeSpan(17, 0, 0); // Default: 5:00 PM
+        
         // Classification time ranges
         public TimeSpan CheckInStartTime { get; set; } = new TimeSpan(8, 30, 0); // Default: 8:30 AM
         public TimeSpan CheckInEndTime { get; set; } = new TimeSpan(10, 30, 0); // Default: 10:30 AM
@@ -53,6 +59,11 @@ namespace BioMetrixCore
             
             DefaultPauseTime = new TimeSpan(1, 0, 0);
             UseDefaultPauseTime = false;
+            
+            UseDefaultCheckInTime = false;
+            UseDefaultCheckOutTime = false;
+            DefaultCheckInTime = new TimeSpan(9, 0, 0);
+            DefaultCheckOutTime = new TimeSpan(17, 0, 0);
             
             CheckInStartTime = new TimeSpan(8, 30, 0);
             CheckInEndTime = new TimeSpan(10, 30, 0);

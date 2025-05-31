@@ -17,6 +17,10 @@ namespace BioMetrixCore
         public bool HasDefaultPauseStart { get; set; } = false;
         public bool HasDefaultPauseEnd { get; set; } = false;
         
+        // Track if check-in and check-out times were added automatically
+        public bool HasDefaultCheckIn { get; set; } = false;
+        public bool HasDefaultCheckOut { get; set; } = false;
+        
         // Controls whether to display pause times
         public bool HidePauseTimes { get; set; } = false;
 

@@ -28,6 +28,16 @@ namespace BioMetrixCore
             dtpDefaultPauseTime.Value = DateTime.Today.Add(settings.DefaultPauseTime);
             chkUseDefaultPause.Checked = settings.UseDefaultPauseTime;
             
+            // Load default check-in and check-out times
+            dtpDefaultCheckInTime.Value = DateTime.Today.Add(settings.DefaultCheckInTime);
+            dtpDefaultCheckOutTime.Value = DateTime.Today.Add(settings.DefaultCheckOutTime);
+            chkUseDefaultCheckIn.Checked = settings.UseDefaultCheckInTime;
+            chkUseDefaultCheckOut.Checked = settings.UseDefaultCheckOutTime;
+            
+            // Enable/disable time pickers based on checkbox state
+            dtpDefaultCheckInTime.Enabled = chkUseDefaultCheckIn.Checked;
+            dtpDefaultCheckOutTime.Enabled = chkUseDefaultCheckOut.Checked;
+            
             // Load classification time ranges
             dtpCheckInStart.Value = DateTime.Today.Add(settings.CheckInStartTime);
             dtpCheckInEnd.Value = DateTime.Today.Add(settings.CheckInEndTime);
@@ -49,6 +59,12 @@ namespace BioMetrixCore
             // Save default pause time
             settings.DefaultPauseTime = dtpDefaultPauseTime.Value.TimeOfDay;
             settings.UseDefaultPauseTime = chkUseDefaultPause.Checked;
+            
+            // Save default check-in and check-out times
+            settings.DefaultCheckInTime = dtpDefaultCheckInTime.Value.TimeOfDay;
+            settings.DefaultCheckOutTime = dtpDefaultCheckOutTime.Value.TimeOfDay;
+            settings.UseDefaultCheckInTime = chkUseDefaultCheckIn.Checked;
+            settings.UseDefaultCheckOutTime = chkUseDefaultCheckOut.Checked;
             
             // Save classification time ranges
             settings.CheckInStartTime = dtpCheckInStart.Value.TimeOfDay;
@@ -88,6 +104,16 @@ namespace BioMetrixCore
         private void chkUseDefaultPause_CheckedChanged(object sender, EventArgs e)
         {
             dtpDefaultPauseTime.Enabled = chkUseDefaultPause.Checked;
+        }
+        
+        private void chkUseDefaultCheckIn_CheckedChanged(object sender, EventArgs e)
+        {
+            dtpDefaultCheckInTime.Enabled = chkUseDefaultCheckIn.Checked;
+        }
+        
+        private void chkUseDefaultCheckOut_CheckedChanged(object sender, EventArgs e)
+        {
+            dtpDefaultCheckOutTime.Enabled = chkUseDefaultCheckOut.Checked;
         }
         
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)

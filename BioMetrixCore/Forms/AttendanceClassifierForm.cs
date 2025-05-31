@@ -209,8 +209,8 @@ namespace BioMetrixCore
                     
                     // Format times
                     string checkInTimes = string.Join(", ", attendance.CheckInTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
-                    string pauseStartTimes = string.Join(", ", attendance.PauseStartTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
-                    string pauseEndTimes = string.Join(", ", attendance.PauseEndTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
+                    string pauseStartTimes = attendance.HidePauseTimes ? "" : string.Join(", ", attendance.PauseStartTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
+                    string pauseEndTimes = attendance.HidePauseTimes ? "" : string.Join(", ", attendance.PauseEndTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
                     
                     // Get work time info
                     var workTimeInfo = workTimesData.ContainsKey(userId) && workTimesData[userId].ContainsKey(date) 
@@ -686,8 +686,8 @@ namespace BioMetrixCore
                         
                         // Format times
                         string checkInTimes = string.Join(", ", attendance.CheckInTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
-                        string pauseStartTimes = string.Join(", ", attendance.PauseStartTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
-                        string pauseEndTimes = string.Join(", ", attendance.PauseEndTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
+                        string pauseStartTimes = attendance.HidePauseTimes ? "" : string.Join(", ", attendance.PauseStartTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
+                        string pauseEndTimes = attendance.HidePauseTimes ? "" : string.Join(", ", attendance.PauseEndTimes.OrderBy(t => t).Select(t => t.ToString("HH:mm")));
                         
                         // Get work time info
                         var workTimeInfo = workTimesData.ContainsKey(userId) && workTimesData[userId].ContainsKey(date) 

@@ -16,6 +16,9 @@ namespace BioMetrixCore
         // Track if pause times were added automatically
         public bool HasDefaultPauseStart { get; set; } = false;
         public bool HasDefaultPauseEnd { get; set; } = false;
+        
+        // Controls whether to display pause times
+        public bool HidePauseTimes { get; set; } = false;
 
         public TimeSpan? TotalPauseTime
         {

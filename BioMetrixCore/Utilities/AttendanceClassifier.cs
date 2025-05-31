@@ -108,6 +108,12 @@ namespace BioMetrixCore
                                     attendance.PauseEndTimes.Add(noon.AddMinutes(Settings.DefaultPauseTime.TotalMinutes / 2));
                                     attendance.HasDefaultPauseEnd = true;
                                 }
+                                
+                                // If both pause start and end times are defaults, hide them
+                                if (attendance.HasDefaultPauseStart && attendance.HasDefaultPauseEnd)
+                                {
+                                    attendance.HidePauseTimes = true;
+                                }
                             }
                         }
                     }

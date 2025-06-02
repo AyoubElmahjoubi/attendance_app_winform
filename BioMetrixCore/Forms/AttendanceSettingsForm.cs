@@ -80,6 +80,8 @@ namespace BioMetrixCore
         private void btnSave_Click(object sender, EventArgs e)
         {
             SaveSettings();
+            // Save settings to file for persistence
+            settings.SaveToFile();
             MessageBox.Show("Settings saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             DialogResult = DialogResult.OK;
             Close();

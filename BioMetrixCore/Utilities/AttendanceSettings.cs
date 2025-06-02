@@ -1,9 +1,16 @@
 using System;
+using System.IO;
+using System.Collections.Generic;
 
 namespace BioMetrixCore
 {
     public class AttendanceSettings
     {
+        // Settings file path in the same directory as the executable
+        private static readonly string SettingsFilePath = Path.Combine(
+            Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+            "AttendanceSettings.txt");
+            
         // Singleton instance
         private static AttendanceSettings _instance;
         
@@ -34,7 +41,7 @@ namespace BioMetrixCore
         public TimeSpan CheckOutStartTime { get; set; } = new TimeSpan(17, 0, 0); // Default: 5:00 PM
         public TimeSpan CheckOutEndTime { get; set; } = new TimeSpan(20, 0, 0); // Default: 8:00 PM
         
-        // Private constructor to prevent direct instantiation
+        // Private constructor
         private AttendanceSettings() { }
         
         // Get the singleton instance
@@ -45,8 +52,129 @@ namespace BioMetrixCore
                 if (_instance == null)
                 {
                     _instance = new AttendanceSettings();
+                    _instance.LoadSettings();
                 }
                 return _instance;
+            }
+        }
+        
+        // Save current settings to file
+        public void SaveToFile()
+        {
+            try
+            {
+                // Create a list of key-value pairs to save
+                var lines = new List<string>
+                {
+                    // Time limits
+                    $"CheckInLimit={CheckInLimit.Ticks}",
+                    $"CheckOutLimit={CheckOutLimit.Ticks}",
+                    $"MaxPauseDuration={MaxPauseDuration.Ticks}",
+                    
+                    // Default pause time
+                    $"DefaultPauseTime={DefaultPauseTime.Ticks}",
+                    $"UseDefaultPauseTime={UseDefaultPauseTime}",
+                    
+                    // Default check-in and check-out times
+                    $"UseDefaultCheckInTime={UseDefaultCheckInTime}",
+                    $"UseDefaultCheckOutTime={UseDefaultCheckOutTime}",
+                    $"DefaultCheckInTime={DefaultCheckInTime.Ticks}",
+                    $"DefaultCheckOutTime={DefaultCheckOutTime.Ticks}",
+                    
+                    // Classification time ranges
+                    $"CheckInStartTime={CheckInStartTime.Ticks}",
+                    $"CheckInEndTime={CheckInEndTime.Ticks}",
+                    
+                    $"PauseStartTime={PauseStartTime.Ticks}",
+                    $"PauseEndTime={PauseEndTime.Ticks}",
+                    
+                    $"CheckOutStartTime={CheckOutStartTime.Ticks}",
+                    $"CheckOutEndTime={CheckOutEndTime.Ticks}"
+                };
+                
+                // Write all lines to the file
+                File.WriteAllLines(SettingsFilePath, lines);
+                
+                System.Windows.Forms.MessageBox.Show($"Settings saved to {SettingsFilePath}", "Settings Saved", 
+                    System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show($"Error saving settings: {ex.Message}", "Error", 
+                    System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+            }
+        }
+        
+        // Load settings from file
+        private void LoadSettings()
+        {
+            try
+            {
+                if (File.Exists(SettingsFilePath))
+                {
+                    // Read all lines from the file
+                    string[] lines = File.ReadAllLines(SettingsFilePath);
+                    
+                    // Create a dictionary to store the settings
+                    var settings = new Dictionary<string, string>();
+                    
+                    // Parse each line into key-value pairs
+                    foreach (string line in lines)
+                    {
+                        string[] parts = line.Split(new char[] { '=' }, 2);
+                        if (parts.Length == 2)
+                        {
+                            settings[parts[0]] = parts[1];
+                        }
+                    }
+                    
+                    // Apply the settings
+                    
+                    // Time limits
+                    if (settings.ContainsKey("CheckInLimit"))
+                        CheckInLimit = new TimeSpan(long.Parse(settings["CheckInLimit"]));
+                    if (settings.ContainsKey("CheckOutLimit"))
+                        CheckOutLimit = new TimeSpan(long.Parse(settings["CheckOutLimit"]));
+                    if (settings.ContainsKey("MaxPauseDuration"))
+                        MaxPauseDuration = new TimeSpan(long.Parse(settings["MaxPauseDuration"]));
+                    
+                    // Default pause time
+                    if (settings.ContainsKey("DefaultPauseTime"))
+                        DefaultPauseTime = new TimeSpan(long.Parse(settings["DefaultPauseTime"]));
+                    if (settings.ContainsKey("UseDefaultPauseTime"))
+                        UseDefaultPauseTime = bool.Parse(settings["UseDefaultPauseTime"]);
+                    
+                    // Default check-in and check-out times
+                    if (settings.ContainsKey("UseDefaultCheckInTime"))
+                        UseDefaultCheckInTime = bool.Parse(settings["UseDefaultCheckInTime"]);
+                    if (settings.ContainsKey("UseDefaultCheckOutTime"))
+                        UseDefaultCheckOutTime = bool.Parse(settings["UseDefaultCheckOutTime"]);
+                    if (settings.ContainsKey("DefaultCheckInTime"))
+                        DefaultCheckInTime = new TimeSpan(long.Parse(settings["DefaultCheckInTime"]));
+                    if (settings.ContainsKey("DefaultCheckOutTime"))
+                        DefaultCheckOutTime = new TimeSpan(long.Parse(settings["DefaultCheckOutTime"]));
+                    
+                    // Classification time ranges
+                    if (settings.ContainsKey("CheckInStartTime"))
+                        CheckInStartTime = new TimeSpan(long.Parse(settings["CheckInStartTime"]));
+                    if (settings.ContainsKey("CheckInEndTime"))
+                        CheckInEndTime = new TimeSpan(long.Parse(settings["CheckInEndTime"]));
+                    
+                    if (settings.ContainsKey("PauseStartTime"))
+                        PauseStartTime = new TimeSpan(long.Parse(settings["PauseStartTime"]));
+                    if (settings.ContainsKey("PauseEndTime"))
+                        PauseEndTime = new TimeSpan(long.Parse(settings["PauseEndTime"]));
+                    
+                    if (settings.ContainsKey("CheckOutStartTime"))
+                        CheckOutStartTime = new TimeSpan(long.Parse(settings["CheckOutStartTime"]));
+                    if (settings.ContainsKey("CheckOutEndTime"))
+                        CheckOutEndTime = new TimeSpan(long.Parse(settings["CheckOutEndTime"]));
+                }
+            }
+            catch (Exception)
+            {
+                // If there's an error loading settings, use defaults
+                ResetToDefaults();
             }
         }
         
@@ -73,6 +201,9 @@ namespace BioMetrixCore
             
             CheckOutStartTime = new TimeSpan(17, 0, 0);
             CheckOutEndTime = new TimeSpan(20, 0, 0);
+            
+            // Save the default settings to file
+            SaveToFile();
         }
     }
 }
